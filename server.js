@@ -14,8 +14,12 @@ const app = express();
 app.use(bodyParser.urlencoded({extended: false}));
 
 const PORT = 3000;
+const WEBSITE_TOKEN = process.env.WEBSITE_VERIFICATION_TOKEN;
 
-app.get('/sendmail', async(req, res) => {
+app.post('/sendmail', async(req, res) => {
+    if (req.body.token === WEBSITE_TOKEN) {
+        res.send({success: false, msg: 'Nope'});
+    }
     const transporter = nodemailer.createTransport({
         host: 'smtp.gmail.com',
         port: 465,
