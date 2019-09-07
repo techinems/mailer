@@ -19,7 +19,7 @@ const PORT = 3000;
 const WEBSITE_TOKEN = process.env.WEBSITE_VERIFICATION_TOKEN;
 
 app.post('/sendmail', async(req, res) => {
-    if (req.body.token === WEBSITE_TOKEN) {
+    if (req.body.token !== WEBSITE_TOKEN) {
         res.send({success: false, msg: 'Nope'});
     }
     const transporter = nodemailer.createTransport({
@@ -37,16 +37,16 @@ app.post('/sendmail', async(req, res) => {
         const message = {
             from: '"RPIA Events" <events@rpiambulance.com>',
             replyTo: 'officers@rpiambulance.com',
-            to: '',
-            subject: 'Test Email',
-            text: 'Hello!',
-            html: '<b> Test </b>'
+            to: req.body.to,
+            subject: req.body.subject,
+            text: req.body.body,
+            // html: '<b> Test </b>'
         };
-        const info = await transporter.sendMail(message);
-        res.send(info);
+        await transporter.sendMail(message);
+        res.send({success: true, msg: 'Email successfully sent!'});
     } catch (err) {
         console.error(err);
-        res.send(err);
+        res.send({success: false, msg: err});
     }
 });
 
