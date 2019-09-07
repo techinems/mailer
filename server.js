@@ -11,6 +11,8 @@ if(env.error){
 
 // Initializes express app
 const app = express();
+
+app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended: false}));
 
 const PORT = 3000;
