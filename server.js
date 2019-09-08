@@ -1,13 +1,9 @@
 const express = require('express');
 const bodyParser = require('body-parser');
-const env = require('dotenv').config();
+require('dotenv').config();
 const nodemailer = require('nodemailer');
 const service_account = require('./keys/gmail_service_creds.json');
 
-//If the environment variables don't get loaded
-if(env.error){
-    throw env.error
-}
 
 // Initializes express app
 const app = express();
