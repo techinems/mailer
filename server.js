@@ -45,10 +45,10 @@ app.post('/sendmail', async(req, res) => {
             text: req.body.body,
             // html: '<b> Test </b>'
         });
-        res.status(200).send('Email successfully sent!');
+        res.send({ success: true, msg: 'Email successfully sent!' });
     } catch (err) {
         console.error(err);
-        res.sendStatus(500);
+        res.send({ success: false, msg: err });
     }
 });
 
