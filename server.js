@@ -4,6 +4,12 @@ require('dotenv').config();
 const nodemailer = require('nodemailer');
 const service_account = require('./keys/gmail_service_creds.json');
 
+const PORT = process.env.PORT || 3000;
+const WEBSITE_VERIFICATION_TOKEN = process.env.WEBSITE_VERIFICATION_TOKEN;
+const FROM_EMAIL = process.env.FROM_EMAIL;
+const FROM_NAME = process.env.FROM_NAME;
+const REPLY_TO_EMAIL = process.env.REPLY_TO_EMAIL;
+const HOMEPAGE = process.env.HOMEPAGE;
 
 // Initializes express app
 const app = express();
@@ -11,45 +17,40 @@ const app = express();
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended: false}));
 
-const PORT = 3000;
-const WEBSITE_TOKEN = process.env.WEBSITE_VERIFICATION_TOKEN;
-
 app.post('/sendmail', async(req, res) => {
-    if (req.body.token !== WEBSITE_TOKEN) {
-        res.send({success: false, msg: 'Nope'});
+    if (req.body.token !== WEBSITE_VERIFICATION_TOKEN) {
+        return res.redirect(HOMEPAGE);
     }
+
     const transporter = nodemailer.createTransport({
         host: 'smtp.gmail.com',
         port: 465,
         secure: true,
         auth: {
             type: 'OAuth2',
-            user: 'events@rpiambulance.com',
+            user: FROM_EMAIL,
             serviceClient: service_account.client_id,
             privateKey: service_account.private_key
         }
     });
+
+    let success = true;
+
     try {
-        const message = {
-            from: '"RPIA Events" <events@rpiambulance.com>',
-            replyTo: 'officers@rpiambulance.com',
+        await transporter.sendMail({
+            from: `"${FROM_NAME}" <${FROM_EMAIL}>`,
+            replyTo: REPLY_TO_EMAIL,
             to: req.body.to,
             subject: req.body.subject,
             text: req.body.body,
             // html: '<b> Test </b>'
-        };
-        await transporter.sendMail(message);
-        res.send({success: true, msg: 'Email successfully sent!'});
+        });
+        res.send({ success: true, msg: 'Email successfully sent!' });
     } catch (err) {
         console.error(err);
-        res.send({success: false, msg: err});
+        res.send({ success: false, msg: err });
     }
 });
 
-app.get('/', (req, res) => {
-    res.send('Hello from the mail server :)');
-});
-
-app.listen(PORT, () => {
-    console.log(`App listening on Port: ${PORT}`);
-});
+app.get('/', (req, res) => res.redirect(HOMEPAGE));
+app.listen(PORT, () => console.log(`App listening on Port: ${PORT}`));
