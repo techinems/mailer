@@ -1,5 +1,4 @@
 const express = require('express');
-const bodyParser = require('body-parser');
 require('dotenv').config();
 const nodemailer = require('nodemailer');
 const service_account = require('./keys/gmail_service_creds.json');
@@ -14,8 +13,8 @@ const HOMEPAGE = process.env.HOMEPAGE;
 // Initializes express app
 const app = express();
 
-app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({extended: false}));
+app.use(express.json());
+app.use(express.urlencoded({extended: false}));
 
 app.post('/sendmail', async(req, res) => {
     if (req.body.token !== WEBSITE_VERIFICATION_TOKEN) {
